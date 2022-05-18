@@ -1,25 +1,19 @@
-import { ReactNode, useEffect, useState, createContext, useId } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { ReactNode, useState, createContext } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { addDoc, collection } from "firebase/firestore";
+
+import { auth, database } from '../services/firebase';
 
 type User = {
   id: string;
   name: string;
   email: string;
-}
-
-type CreateUser = {
-  id: string;
-  name: string;
-  email: string;
   password: string;
-  // CreateUserWithEmailAndPassword: () => Promise<void>;
 }
 
 type AuthContextType = {
   user: User | undefined;
-
-  createUser: () => Promise<void>;
+  // createUserFirebase: () => Promise<void>;
   // signInWithGoogle: () => Promise<void>;
   // signOut: () => Promise<void>;
 }
@@ -33,28 +27,21 @@ export const AuthContext = createContext({} as AuthContextType);
 export function AuthContextProvider(props: AuthProviderProps) {
   const [user, setUser] = useState<User>();
 
-  async function createUser({ name, email, password }: CreateUser) {
-    const auth = getAuth();
-    const database = getFirestore();
+  async function createUserFirebase({ name, email, password }: User) {
     const createUser = await createUserWithEmailAndPassword(auth, email, password);
-    console.log(createUser);
-    // const createdUser = createUser.user;
-    // await addDoc(collection(database, "users"), {
-    //   uid: createdUser.uid,
-    //   name,
-    //   authProvider: "local",
-    //   email,
-    // });
-    // return createdUser;
-  }
-
-  const value = {
-    user,
-    createUser,
+    const createdUser = createUser.user;
+    await addDoc(collection(database, "users"), {
+      uid: createdUser.uid,
+      name,
+      authProvider: "local",
+      email,
+    });
+    console.log(createdUser);
+    return;
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user }}>
       {props.children}
     </AuthContext.Provider>
   );
