@@ -2,7 +2,7 @@ import { ReactNode, useState, createContext, useEffect } from "react";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { addDoc, collection } from "firebase/firestore";
 
-import { auth, database, updateProfile, FirebaseError } from '../services/firebase';
+import { auth, database, updateProfile } from '../services/firebase';
 
 type User = {
   id: string;
@@ -20,7 +20,6 @@ type AuthContextType = {
   user: UserData | undefined;
   createUserWithFirebase: (args: CreateUserData) => Promise<void>;
   signIn: (args: LoginData) => Promise<void>;
-  // signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -85,28 +84,26 @@ export function AuthContextProvider(props: AuthProviderProps) {
   async function signIn({ email, password }: LoginData) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch ((error: FirebaseError) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-
-      throw new Error(errorMessage);
-    )
+    } catch {
+      alert('As informações estão incorretas');
     };
-    async function signOut() {
-      setUser(undefined);
-      return auth.signOut()
-    }
-
-    const value = {
-      user,
-      createUserWithFirebase,
-      signIn,
-      signOut,
-    }
-
-    return (
-      <AuthContext.Provider value={value}>
-        {props.children}
-      </AuthContext.Provider>
-    );
   }
+
+  async function signOut() {
+    setUser(undefined);
+    return auth.signOut()
+  }
+
+  const value = {
+    user,
+    createUserWithFirebase,
+    signIn,
+    signOut,
+  }
+
+  return (
+    <AuthContext.Provider value={value}>
+      {props.children}
+    </AuthContext.Provider>
+  );
+}
