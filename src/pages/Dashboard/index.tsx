@@ -1,15 +1,10 @@
-import { Heading, Stack, Button } from "@chakra-ui/react"
-import { useAuthState } from "react-firebase-hooks/auth";
+import { Heading, Stack, Button, Text } from "@chakra-ui/react"
 import { useNavigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
-import { auth } from "../../services/firebase";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const [user] = useAuthState(auth);
-
-  console.log(user);
+  const { user, signOut } = useAuth();
 
   async function handleSignOut() {
     await signOut();
@@ -18,10 +13,18 @@ export function Dashboard() {
 
   return (
     <Stack>
-      <Heading>
+      <Heading mb="6">
         Home
       </Heading>
-      <Button colorScheme="teal" onClick={handleSignOut}>Sair</Button>
+      <Text colorScheme="teal">
+        {user?.name}
+      </Text>
+      <Text colorScheme="teal">
+        {user?.email}
+      </Text>
+      <Button mt="6" colorScheme="teal" onClick={handleSignOut}>
+        Sair
+      </Button>
     </Stack>
   );
 }

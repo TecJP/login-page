@@ -1,8 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Link as ReachLink, useNavigate } from 'react-router-dom';
-import { Button, Link, Flex, Stack } from '@chakra-ui/react';
-import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth } from '../../services/firebase';
+import { Button, Link, Flex, Stack, Text } from '@chakra-ui/react';
 
 import { Input } from '../../components/Input';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,11 +10,12 @@ export function SignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, loading, error] = useAuthState(auth);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { createUserWithFirebase } = useAuth();
+  const navigate = useNavigate();
 
   async function CreateUser(event: FormEvent) {
+    setLoading(true);
     event.preventDefault();
     if (!(name && email && password)) {
       alert("Preencha todos os campos");
@@ -26,10 +25,9 @@ export function SignUp() {
       email,
       password,
     });
+    setLoading(false);
     navigate('/dashboard');
   }
-
-  console.log(user);
 
   return (
     <Flex w="100vw" h="100vh" align="center" justify="center">
@@ -67,8 +65,8 @@ export function SignUp() {
           />
         </Stack>
 
-        <Button type="submit" mt="6" colorScheme="teal">Criar</Button>
-        <Link as={ReachLink} to="/" alignSelf="center" mt="4" >Página de SignIn</Link>
+        <Button isLoading={loading} type="submit" mt="6" colorScheme="teal">Criar</Button>
+        <Text alignSelf="center" mt="4">Já possui conta? <Link as={ReachLink} to="/" color="teal.300">Entrar</Link></Text>
       </Flex>
     </Flex>
   )
