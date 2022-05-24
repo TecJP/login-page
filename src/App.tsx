@@ -15,7 +15,6 @@ export function App() {
             <Dashboard />
           </PrivateRoute>
         } />
-        {/* <PrivateRoute isAuthenticated={authenticated} authenticationPath='/' path="dashboard" element={<Dashboard />} /> */}
         <Route path="signup" element={<SignUp />} />
       </Routes>
     </div>
