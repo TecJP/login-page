@@ -14,12 +14,12 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <AuthContextProvider>
-      <ChakraProvider resetCSS theme={theme}>
-        <BrowserRouter>
+    <ChakraProvider resetCSS theme={theme}>
+      <BrowserRouter>
+        <AuthContextProvider>
           <App />
-        </BrowserRouter>
-      </ChakraProvider>
-    </AuthContextProvider>
+        </AuthContextProvider>
+      </BrowserRouter>
+    </ChakraProvider>
   </React.StrictMode>
 );

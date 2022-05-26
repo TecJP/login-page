@@ -2,7 +2,9 @@ import { ReactNode, useState, createContext, useEffect } from "react";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { addDoc, collection } from "firebase/firestore";
 
-import { auth, database, updateProfile } from '../services/firebase';
+import { auth, database, updateProfile, FirebaseError } from '../services/firebase';
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 type User = {
   id: string;
@@ -31,6 +33,7 @@ export const AuthContext = createContext({} as AuthContextType);
 
 export function AuthContextProvider(props: AuthProviderProps) {
   const [user, setUser] = useState<UserData>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubiscribe = auth.onAuthStateChanged(user => {
@@ -55,37 +58,48 @@ export function AuthContextProvider(props: AuthProviderProps) {
   }, []);
 
   async function createUserWithFirebase({ name, email, password }: CreateUserData) {
-    const createUser = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(createUser.user, {
-      'displayName': name
-    });
-    const createdUser = createUser.user;
-    await addDoc(collection(database, "users"), {
-      uid: createdUser.uid,
-      displayName: name,
-      name,
-      authProvider: "local",
-      email,
-    });
-    if (createdUser) {
-      const { displayName, uid } = createdUser;
-      if (!displayName) {
-        console.log('Missing information from account');
-        return;
-      }
-      setUser({
-        id: uid,
-        name: displayName,
-        email: email,
+    try {
+      const createUser = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(createUser.user, {
+        'displayName': name
       });
-    }
+      const createdUser = createUser.user;
+      await addDoc(collection(database, "users"), {
+        uid: createdUser.uid,
+        displayName: name,
+        name,
+        authProvider: "local",
+        email,
+      });
+      if (createdUser) {
+        const { displayName, uid } = createdUser;
+        if (!displayName) {
+          console.log('Missing information from account');
+          return;
+        }
+        setUser({
+          id: uid,
+          name: displayName,
+          email: email,
+        });
+      }
+      navigate('dashboard');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        const emailAlreadyUsed = error.code === 'auth/email-already-in-use';
+
+        if (emailAlreadyUsed) {
+          toast.error('Email ja está sendo utilizado.');
+        }
+      }
+    };
   }
 
   async function signIn({ email, password }: LoginData) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch {
-      alert('As informações estão incorretas');
+    } catch (error) {
+      alert(error);
     };
   }
 

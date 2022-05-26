@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Link as ReachLink, useNavigate } from 'react-router-dom';
+import { Link as ReachLink } from 'react-router-dom';
 import { Button, Link, Flex, Stack, Text } from '@chakra-ui/react';
 
 import { Input } from '../../components/Input';
@@ -12,7 +12,6 @@ export function SignUp() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { createUserWithFirebase } = useAuth();
-  const navigate = useNavigate();
 
   async function CreateUser(event: FormEvent) {
     setLoading(true);
@@ -26,7 +25,6 @@ export function SignUp() {
       password,
     });
     setLoading(false);
-    navigate('/dashboard');
   }
 
   return (
